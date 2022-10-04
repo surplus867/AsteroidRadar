@@ -16,19 +16,3 @@ data class AsteroidsDatabase constructor(
     val distanceFromEarth: Double,
     val isPotentiallyHazardous: Boolean
 )
-
-//Add an extension function which converts from database objects to domain objects:
-fun List<AsteroidsDatabase>.asDomainModel(): List<Asteroid> {
-    return map {
-        Asteroid(
-            id = it.id,
-            codename = it.codename,
-            closeApproachDate = it.closeApproachDate,
-            absoluteMagnitude = it.absoluteMagnitude,
-            estimatedDiameter = it.estimateDiameter,
-            relativeVelocity = it.relativeVelocity,
-            distanceFromEarth = it.distanceFromEarth,
-            isPotentiallyHazardous = it.isPotentiallyHazardous
-        )
-    }
-}

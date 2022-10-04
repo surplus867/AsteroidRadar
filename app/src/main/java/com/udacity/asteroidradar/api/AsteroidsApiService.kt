@@ -11,7 +11,7 @@ import retrofit2.http.Query
 interface AsteroidsApiService {
 
     @GET("neo/rest/v1/feed")
-    suspend fun getFeeds(
+    suspend fun getAsteroids(
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String,
         @Query("api_key") apiKey: String
@@ -20,3 +20,4 @@ interface AsteroidsApiService {
     @GET("planetary/apod")
     suspend fun getImageOfDay(@Query("api_key") apiKey: String): Response<PictureOfDay>
 }
+

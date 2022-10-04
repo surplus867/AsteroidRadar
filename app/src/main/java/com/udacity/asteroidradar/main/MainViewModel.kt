@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.api.RetrofitInstance.retrofitService
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.utils.Constants
+import com.udacity.asteroidradar.utils.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.utils.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -18,18 +19,14 @@ enum class ApiStatus { LOADING, ERROR, DONE }
 
 enum class Filter { TODAY, WEEK, SAVED }
 
-class MainViewModel: ViewModel() {
-
-    private val _status = MutableLiveData<ApiStatus>()
-    val status: LiveData<ApiStatus>
-        get() = _status
+class MainViewModel : ViewModel() {
 
     private val _asteroidList = MutableLiveData<List<Asteroid>>()
     val asteroidList: LiveData<List<Asteroid>>
         get() = _asteroidList
 
-    private val _navigationToDetail = MutableLiveData<Asteroid>()
-    val navigationToDetail: LiveData<Asteroid>
+    private val _navigationToDetail = MutableLiveData<Asteroid?>()
+    val navigationToDetail: MutableLiveData<Asteroid?>
         get() = _navigationToDetail
 
     private val _imageIOTD = MutableLiveData("")
@@ -45,12 +42,6 @@ class MainViewModel: ViewModel() {
         }
 
     }
-
- /*   private val asteroidType = MutableLiveData(Filter.TODAY)
-
- *//*   fun updateFilter(filer: Filter) {
-        asteroidType.value = filer
-    }*/
 
     private suspend fun getImage() {
         _imageIOTD.value = retrofitService.getImageOfDay(Constants.API_KEY).body()!!.url
@@ -70,18 +61,16 @@ class MainViewModel: ViewModel() {
 
     }
 
-    suspend fun getAsteroids() {
+    private suspend fun getAsteroids() {
         try {
-            val startDate = "2022-08-08"
-            val endDate = "2022-08-09"
-            val result = retrofitService.getFeeds(startDate, endDate,  Constants.API_KEY)
-            _asteroidList.value = parseAsteroidsJsonResult(JSONObject(result), startDate, endDate)
+            val result = retrofitService.getAsteroids(
+                getNextSevenDaysFormattedDates().first(),
+                getNextSevenDaysFormattedDates().last(), Constants.API_KEY
+            )
+            _asteroidList.value = parseAsteroidsJsonResult(JSONObject(result))
         } catch (e: Exception) {
             // handle error
             Log.d("getAsteroids Exception", "Exception: ${e.localizedMessage}")
         }
-
-
-
     }
-    }
+}

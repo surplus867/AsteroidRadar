@@ -2,13 +2,16 @@ package com.udacity.asteroidradar.utils
 
 import com.udacity.asteroidradar.domain.Asteroid
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
-fun parseAsteroidsJsonResult(jsonResult: JSONObject, startDate: String, endDate: String): ArrayList<Asteroid> {
+fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
     val nearEarthObjectsJson = jsonResult.getJSONObject("near_earth_objects")
 
     val asteroidList = ArrayList<Asteroid>()
 
-    val nextSevenDaysFormattedDates = getNextSevenDaysFormattedDates(startDate, endDate)
+    val nextSevenDaysFormattedDates = getNextSevenDaysFormattedDates()
     for (formattedDate in nextSevenDaysFormattedDates) {
         val dateAsteroidJsonArray = nearEarthObjectsJson.getJSONArray(formattedDate)
 
@@ -38,10 +41,18 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject, startDate: String, endDate:
     return asteroidList
 }
 
-private fun getNextSevenDaysFormattedDates(startDate: String, endDate: String): ArrayList<String> {
-    val formattedDateList = ArrayList<String>()
-    formattedDateList.add(startDate)
-    formattedDateList.add(endDate)
+/** This method is to get 8 days, the current day and the next seven days, the return is a
+ *  formatted date ArrayList<String> in the form yyyy-MM-dd
+ */
 
+fun getNextSevenDaysFormattedDates(): ArrayList<String> {
+    val formattedDateList = ArrayList<String>()
+    val calendar = Calendar.getInstance()
+    for (i in 0..Constants.DEFAULT_END_DATE_DAYS) {
+        val currentTime = calendar.time
+        val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+        formattedDateList.add(dateFormat.format(currentTime))
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+    }
     return formattedDateList
 }
