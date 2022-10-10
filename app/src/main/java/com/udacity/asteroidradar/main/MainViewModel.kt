@@ -8,18 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.api.RetrofitInstance.retrofitService
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.utils.Constants
-import com.udacity.asteroidradar.utils.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.utils.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 enum class ApiStatus { LOADING, ERROR, DONE }
 
 enum class Filter { TODAY, WEEK, SAVED }
 
-class MainViewModel : ViewModel() {
+class MainViewModel() : ViewModel() {
+    /*val dataBase = getDatabase(application.applicationContext)*/
 
     private val _asteroidList = MutableLiveData<List<Asteroid>>()
     val asteroidList: LiveData<List<Asteroid>>
@@ -35,10 +36,8 @@ class MainViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            getImage()
-        }
-        viewModelScope.launch {
             getAsteroids()
+            getImage()
         }
 
     }
@@ -63,14 +62,18 @@ class MainViewModel : ViewModel() {
 
     private suspend fun getAsteroids() {
         try {
+            val today = Calendar.getInstance()
+            val afterSevenDays = Calendar.getInstance().also { it.add(Calendar.DAY_OF_YEAR, 7) }
             val result = retrofitService.getAsteroids(
-                getNextSevenDaysFormattedDates().first(),
-                getNextSevenDaysFormattedDates().last(), Constants.API_KEY
-            )
+                SimpleDateFormat("yyyy-MM-dd", Locale.CANADA).format(Date(today.timeInMillis)),
+                SimpleDateFormat("yyyy-MM-dd", Locale.CANADA).format(Date(afterSevenDays.timeInMillis)), Constants.API_KEY)
             _asteroidList.value = parseAsteroidsJsonResult(JSONObject(result))
+            /*// todo convert List of Asteroid ito database list using the functions in DataBaseEntities so that it can be stored
+            dataBase.asteroidDao.insertAll()*/
+
         } catch (e: Exception) {
             // handle error
             Log.d("getAsteroids Exception", "Exception: ${e.localizedMessage}")
         }
     }
-}
+    }
