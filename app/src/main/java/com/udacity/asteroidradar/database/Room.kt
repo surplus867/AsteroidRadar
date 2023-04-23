@@ -7,16 +7,16 @@ import androidx.room.*
 @Dao
 interface AsteroidDao {
 
-    @Query("SELECT * FROM dataBaseAsteroid ORDER BY closeApproachDate ASC")
+    @Query("SELECT * FROM asteroids ORDER BY closeApproachDate ASC")
     fun getAsteroids():LiveData<List<DatabaseAsteroid>>
 
-    @Query("SELECT * FROM dataBaseAsteroid WHERE closeApproachDate = :date ORDER BY closeApproachDate ASC")
+    @Query("SELECT * FROM asteroids WHERE closeApproachDate = :date ORDER BY closeApproachDate ASC")
     fun getAsteroidToday(date:String):LiveData<List<DatabaseAsteroid>>
 
-    @Query("SELECT * FROM dataBaseAsteroid WHERE closeApproachDate BETWEEN :startDate AND :endDate ORDER BY closeApproachDate ASC")
+    @Query("SELECT * FROM asteroids WHERE closeApproachDate BETWEEN :startDate AND :endDate ORDER BY closeApproachDate ASC")
     fun getAsteroidWeek(startDate:String,endDate:String):LiveData<List<DatabaseAsteroid>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg asteroid: DatabaseAsteroid)
 }
 
@@ -32,7 +32,7 @@ fun getDatabase(context: Context): AsteroidDatabase {
         if (!::INSTANCE.isInitialized) {
             INSTANCE = Room.databaseBuilder(context.applicationContext,
                 AsteroidDatabase::class.java,
-                "videos").build()
+                "asteroids").build()
         }
     }
     return INSTANCE
